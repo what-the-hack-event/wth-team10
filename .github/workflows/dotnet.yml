@@ -65,5 +65,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
             app-name: wtht10webappdev
-            images: $registryName/$repositoryName:$tag
+            images: ${{ env.registryName }}/${{ env.repositoryName }}:${{ env.tag }}
         
