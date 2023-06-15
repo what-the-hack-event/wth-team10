@@ -9,6 +9,12 @@ env:
 jobs:
   deploy-dev:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - webappdev
+          - webapptest
+          - webappprod
     steps:
       # Checkout code
     - uses: actions/checkout@main
@@ -25,4 +31,4 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: ./ARM-Templates/container-webapp-template.json
-        parameters: webAppName=${{ env.prefix }}webappdev
+        parameters: webAppName=${{ env.prefix }}${{ matrix.app }}
