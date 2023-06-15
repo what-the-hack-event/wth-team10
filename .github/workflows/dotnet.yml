@@ -6,13 +6,13 @@ name: .NET
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'Application/**'
+      - "Application/**"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'Application/**'
+      - "Application/**"
 
 env:
   registryName: wtht10devopsreg.azurecr.io
@@ -22,21 +22,20 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-    - name: Restore dependencies
-      run: dotnet restore Application/src/RazorPagesTestSample/RazorPagesTestSample.csproj
-    - name: Build
-      run: dotnet build --no-restore  Application/src/RazorPagesTestSample/RazorPagesTestSample.csproj
-    - name: Test
-      run: dotnet test --no-build --verbosity normal Application/tests/RazorPagesTestSample.Tests/RazorPagesTestSample.Tests.csproj
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore Application/src/RazorPagesTestSample/RazorPagesTestSample.csproj
+      - name: Build
+        run: dotnet build --no-restore  Application/src/RazorPagesTestSample/RazorPagesTestSample.csproj
+      - name: Test
+        run: dotnet test --no-build --verbosity normal Application/tests/RazorPagesTestSample.Tests/RazorPagesTestSample.Tests.csproj
 
   docker-deploy:
     # needs: build
@@ -56,6 +55,7 @@ jobs:
   webapp-deploy-dev:
     needs: docker-deploy
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - uses: azure/login@v1
         with:
@@ -64,6 +64,35 @@ jobs:
       - name: App Service deploy (dev)
         uses: azure/webapps-deploy@v2
         with:
-            app-name: wtht10webappdev
-            images: ${{ env.registryName }}/${{ env.repositoryName }}:${{ env.tag }}
-        
+          app-name: wtht10webappdev
+          images: ${{ env.registryName }}/${{ env.repositoryName }}:${{ env.tag }}
+
+  webapp-deploy-test:
+    needs: webapp-deploy-dev
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: App Service deploy (test)
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: wtht10webapptest
+          images: ${{ env.registryName }}/${{ env.repositoryName }}:${{ env.tag }}
+
+  webapp-deploy-prod:
+    needs: webapp-deploy-test
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: App Service deploy (prod)
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: wtht10webappprod
+          images: ${{ env.registryName }}/${{ env.repositoryName }}:${{ env.tag }}
