@@ -39,7 +39,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal Application/tests/RazorPagesTestSample.Tests/RazorPagesTestSample.Tests.csproj
 
   docker-deploy:
-    needs: build
+    # needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -52,4 +52,18 @@ jobs:
 
       - name: Docker push
         run: docker push $registryName/$repositoryName:$tag
+
+  webapp-deploy-dev:
+    needs: docker-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: App Service deploy (dev)
+        uses: azure/webapps-deploy@v2
+        with:
+            app-name: wtht10webappdev
+            images: $registryName/$repositoryName:$tag
         
