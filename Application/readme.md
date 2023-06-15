@@ -3,3 +3,5 @@ Sample app from: https://github.com/dotnet/AspNetCore.Docs/tree/master/aspnetcor
 And a comment from Phil
 
 And a comment from Kushal
+
+And a comment from Kris
