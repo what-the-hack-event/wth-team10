@@ -2,8 +2,8 @@ name: Challenge 4
 
 on:
   workflow_dispatch:
-  issue_comment:
-    types: created
+  issues:
+    types: opened
     
 jobs:
   job1:
