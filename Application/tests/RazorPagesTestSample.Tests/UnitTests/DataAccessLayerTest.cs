@@ -10,6 +10,12 @@ namespace RazorPagesTestSample.Tests.UnitTests
     public class DataAccessLayerTest
     {
         [Fact]
+        public async Task FailTask()
+        {
+            Assert.Fail();
+        }
+
+        [Fact]
         public async Task GetMessagesAsync_MessagesAreReturned()
         {
             using (var db = new AppDbContext(Utilities.TestDbContextOptions()))
